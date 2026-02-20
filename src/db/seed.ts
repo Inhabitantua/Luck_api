@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { db } from '../config/database.js';
 import { adminUsers } from './schema.js';
 import { env } from '../config/env.js';

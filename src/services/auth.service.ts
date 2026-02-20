@@ -1,6 +1,6 @@
 import { OAuth2Client } from 'google-auth-library';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { db } from '../config/database.js';
 import { users, adminUsers } from '../db/schema.js';
 import { eq } from 'drizzle-orm';
