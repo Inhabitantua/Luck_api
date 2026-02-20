@@ -16,6 +16,7 @@ router.post('/login', async (req, res) => {
     const result = await adminLogin(username, password);
     res.json(result);
   } catch (err: any) {
+    console.error('Admin login error:', err);
     res.status(401).json({ error: err.message });
   }
 });

@@ -9,6 +9,7 @@ import { journalsRoutes } from './routes/journals.routes.js';
 import { stateRoutes } from './routes/state.routes.js';
 import { onboardingRoutes } from './routes/onboarding.routes.js';
 import { adminRoutes } from './routes/admin.routes.js';
+import { pool } from './config/database.js';
 
 const app = express();
 
@@ -23,8 +24,13 @@ app.use(cors({
 app.use(express.json({ limit: '2mb' }));
 
 // ── Health Check ────────────────────────────────────────
-app.get('/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+app.get('/health', async (_req, res) => {
+  try {
+    const result = await pool.query('SELECT NOW()');
+    res.json({ status: 'ok', timestamp: new Date().toISOString(), db: 'connected', dbTime: result.rows[0].now });
+  } catch (err: any) {
+    res.json({ status: 'ok', timestamp: new Date().toISOString(), db: 'error', dbError: err.message });
+  }
 });
 
 // ── API Routes ──────────────────────────────────────────
