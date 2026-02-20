@@ -6,6 +6,6 @@ export function errorHandler(err: Error, _req: Request, res: Response, _next: Ne
 
   res.status(500).json({
     error: 'Internal server error',
-    message: process.env.NODE_ENV === 'development' ? err.message : undefined,
+    detail: err.message,
   });
 }
