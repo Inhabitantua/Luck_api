@@ -16,9 +16,13 @@ const app = express();
 // ── Middleware ───────────────────────────────────────────
 app.use(helmet());
 app.use(cors({
-  origin: env.NODE_ENV === 'production'
-    ? [env.CORS_ORIGIN, 'https://www.try-luck.com']
-    : ['http://localhost:5173', 'http://localhost:3000'],
+  origin: [
+    env.CORS_ORIGIN,
+    'https://www.try-luck.com',
+    'https://try-luck.com',
+    'http://localhost:5173',
+    'http://localhost:3000',
+  ],
   credentials: true,
 }));
 app.use(express.json({ limit: '2mb' }));
