@@ -5,14 +5,8 @@ import { getDashboardStats, getUserList, getUserDetail } from '../services/admin
 
 const router = Router();
 
-// GET /api/v1/admin/ping (debug)
-router.get('/ping', (_req, res) => {
-  res.json({ ping: 'pong', time: new Date().toISOString() });
-});
-
 // POST /api/v1/admin/login (no auth required)
 router.post('/login', async (req, res) => {
-  console.log('[admin/login] Request received, body:', JSON.stringify(req.body));
   try {
     const { username, password } = req.body;
     if (!username || !password) {
@@ -20,10 +14,8 @@ router.post('/login', async (req, res) => {
       return;
     }
     const result = await adminLogin(username, password);
-    console.log('[admin/login] Login success');
     res.json(result);
   } catch (err: any) {
-    console.error('[admin/login] Caught error:', err.message);
     res.status(401).json({ error: err.message });
   }
 });

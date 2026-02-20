@@ -113,18 +113,7 @@ export async function getUserProfile(userId: string) {
 
 // ── Admin Login ─────────────────────────────────────────
 export async function adminLogin(username: string, password: string) {
-  console.log('[adminLogin] Attempting login for:', username);
-
-  let admin;
-  try {
-    const result = await db.select().from(adminUsers).where(eq(adminUsers.username, username)).limit(1);
-    admin = result[0];
-    console.log('[adminLogin] DB query complete, found:', !!admin);
-  } catch (dbErr: any) {
-    console.error('[adminLogin] Database error:', dbErr.message);
-    throw new Error('Database connection error');
-  }
-
+  const [admin] = await db.select().from(adminUsers).where(eq(adminUsers.username, username)).limit(1);
   if (!admin) {
     throw new Error('Invalid credentials');
   }
