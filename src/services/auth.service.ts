@@ -111,6 +111,54 @@ export async function getUserProfile(userId: string) {
   return sanitizeUser(user);
 }
 
+// ── Update Profile ─────────────────────────────────────
+export async function updateProfile(userId: string, data: { displayName?: string; avatarUrl?: string }) {
+  const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+  if (!user) throw new Error('User not found');
+
+  const updates: Record<string, unknown> = {};
+  if (data.displayName && data.displayName.trim()) {
+    updates.displayName = data.displayName.trim();
+  }
+  if (data.avatarUrl !== undefined) {
+    updates.avatarUrl = data.avatarUrl;
+  }
+
+  if (Object.keys(updates).length === 0) {
+    return sanitizeUser(user);
+  }
+
+  const [updated] = await db.update(users).set(updates).where(eq(users.id, userId)).returning();
+  return sanitizeUser(updated);
+}
+
+// ── Change Password ────────────────────────────────────
+export async function changePassword(userId: string, oldPassword: string, newPassword: string) {
+  const [user] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+  if (!user) throw new Error('User not found');
+
+  if (user.authMethod !== 'email') {
+    throw new Error('Password change is only available for email accounts');
+  }
+  if (!user.passwordHash) {
+    throw new Error('No password set for this account');
+  }
+
+  const valid = await bcrypt.compare(oldPassword, user.passwordHash);
+  if (!valid) {
+    throw new Error('Current password is incorrect');
+  }
+
+  if (newPassword.length < 6) {
+    throw new Error('New password must be at least 6 characters');
+  }
+
+  const newHash = await bcrypt.hash(newPassword, 12);
+  await db.update(users).set({ passwordHash: newHash }).where(eq(users.id, userId));
+
+  return { success: true };
+}
+
 // ── Admin Login ─────────────────────────────────────────
 export async function adminLogin(username: string, password: string) {
   const [admin] = await db.select().from(adminUsers).where(eq(adminUsers.username, username)).limit(1);

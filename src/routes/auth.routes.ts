@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authenticateWithGoogle, registerWithEmail, loginWithEmail, registerAnonymous, getUserProfile } from '../services/auth.service.js';
+import { authenticateWithGoogle, registerWithEmail, loginWithEmail, registerAnonymous, getUserProfile, updateProfile, changePassword } from '../services/auth.service.js';
 import { requireAuth } from '../middleware/auth.js';
 import type { AuthRequest } from '../types/index.js';
 
@@ -72,6 +72,32 @@ router.get('/me', requireAuth, async (req: AuthRequest, res) => {
     res.json(user);
   } catch (err: any) {
     res.status(404).json({ error: err.message });
+  }
+});
+
+// PUT /api/v1/auth/profile
+router.put('/profile', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const { displayName, avatarUrl } = req.body;
+    const user = await updateProfile(req.userId!, { displayName, avatarUrl });
+    res.json(user);
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// PUT /api/v1/auth/password
+router.put('/password', requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    if (!oldPassword || !newPassword) {
+      res.status(400).json({ error: 'oldPassword and newPassword required' });
+      return;
+    }
+    const result = await changePassword(req.userId!, oldPassword, newPassword);
+    res.json(result);
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
   }
 });
 
